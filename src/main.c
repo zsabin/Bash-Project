@@ -77,6 +77,7 @@ int get_file_names(char *dir_name, char **buffer) {
             i++;
         }
     }
+    closedir(dir_p);
     return 0;
 }
 
