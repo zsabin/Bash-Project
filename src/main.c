@@ -6,32 +6,51 @@
 
 char * get_next_file_name(DIR *dir_p);
 int get_file_names(char *dir_name, char **buffer);
+char * read_user_input(char *buffer, int buffer_size);
 char * copy_string(char *src);
 int is_file_name_to_ignore(char *file_name);
+
+const int MAX_PATH_LENGTH = 4096; 
  
-/* Takes in the path of a directory as a command line argument and prints out 
- * the names of all of the files in that directory.
+/* Reads the path to a directory from the user and prints out the list of files
+ * in that directory until the user inputs an empty string.
  * 
- * TODO: Update this so it reads directory paths from the user until the user
- * enters an empty string 
+ * TODO: After inserting a directory name the user should be prompted for part
+ * of a file name and should be given a list of all the files in that directory
+ * that begin with that prefix.
  */
-int main(int argc, char **argv) {    
-    const int buffer_size = 100;
-    char* buffer[buffer_size];
+int main() {   
+    char input[MAX_PATH_LENGTH];
+    const int results_size = 100;
+    char *results[results_size];
     int i;
 
-    for (i = 0; i < buffer_size; i++) {
-        buffer[i] = NULL;
-    }
+    printf("\nEnter a folder name: ");
+    while (read_user_input(input, MAX_PATH_LENGTH)) {
+        for (i = 0; i < results_size; i++) {
+            results[i] = NULL;
+        }
 
-    if (get_file_names(argv[1], buffer)){
-        printf("Invalid Directory\n");
-    }
-
-    for (i = 0; i < buffer_size && buffer[i]; i++) {
-        printf("%s\n", buffer[i]);
+        if (get_file_names(input, results)){
+            printf("Invalid Directory\n");
+        }
+        else {
+            printf("Files in %s:\n", input);
+            for (i = 0; i < results_size && results[i]; i++) {
+                printf("%s\n", results[i]);
+            }
+        }
+        printf("\nEnter a folder name: ");
     }
     return EXIT_SUCCESS;
+}
+
+/* Reads user input, strips the trailing new line character and stores the
+ * result in the given buffer. Returns the resulting buffer as a convenience.
+ */
+char * read_user_input(char *buffer, int buffer_size) {
+    fgets(buffer, buffer_size, stdin);
+    return buffer = strtok(buffer, "\n");
 }
 
 /* Attempts to get the names of all of the files in the specified directory
@@ -46,6 +65,7 @@ int get_file_names(char *dir_name, char **buffer) {
     char *file_name;
     int i;
 
+    errno = 0;
     dir_p = opendir(dir_name);
     if (errno) {
         return errno;
