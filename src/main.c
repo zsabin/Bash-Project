@@ -7,40 +7,45 @@
 char * get_next_file_name(DIR *dir_p);
 int get_file_names(char *dir_name, char **buffer);
 char * read_user_input(char *buffer, int buffer_size);
+void print_strings_with_prefix(char **strings, int strings_size, char *prefix);
+int starts_with(char *str, char *prefix);
 char * copy_string(char *src);
 int is_file_name_to_ignore(char *file_name);
 
 const int MAX_PATH_LENGTH = 4096; 
+const int MAX_FILE_NAME_LENGTH = 256;
  
-/* Reads the path to a directory from the user and prints out the list of files
- * in that directory until the user inputs an empty string.
- * 
- * TODO: After inserting a directory name the user should be prompted for part
- * of a file name and should be given a list of all the files in that directory
- * that begin with that prefix.
+/* Reads the names of each of the files in a user-specified directory. Then 
+ * reads file prefixes from the user and prints the list of names of the
+ * files in the directory that begin with the given prefix. The program exits 
+ * when the user enters an empty string. 
  */
 int main() {   
-    char input[MAX_PATH_LENGTH];
-    const int results_size = 100;
-    char *results[results_size];
+    char dir_name[MAX_PATH_LENGTH];
+    char file_prefix[MAX_FILE_NAME_LENGTH];
+    
+    /* TODO: Replace file_names with an array of linked lists or trie */
+    const int file_names_size = 100;
+    char *file_names[file_names_size];
+    
     int i;
 
     printf("\nEnter a folder name: ");
-    while (read_user_input(input, MAX_PATH_LENGTH)) {
-        for (i = 0; i < results_size; i++) {
-            results[i] = NULL;
-        }
-
-        if (get_file_names(input, results)){
-            printf("Invalid Directory\n");
-        }
-        else {
-            printf("Files in %s:\n", input);
-            for (i = 0; i < results_size && results[i]; i++) {
-                printf("%s\n", results[i]);
-            }
-        }
-        printf("\nEnter a folder name: ");
+    read_user_input(dir_name, MAX_PATH_LENGTH);
+    for (i = 0; i < file_names_size; i++) {
+        file_names[i] = NULL;
+    }
+        
+    if (get_file_names(dir_name, file_names)){
+        printf("Invalid Directory\n");
+        return EXIT_SUCCESS;
+    }
+    
+    printf("Enter the beginning of a filename:\n");
+    while (read_user_input(file_prefix, MAX_FILE_NAME_LENGTH)) {
+        printf("\nFiles starting with %s in %s\n", file_prefix, dir_name);
+        print_strings_with_prefix(file_names, file_names_size, file_prefix);
+        printf("Enter the beginning of a filename:\n");
     }
     return EXIT_SUCCESS;
 }
@@ -81,6 +86,9 @@ int get_file_names(char *dir_name, char **buffer) {
     return 0;
 }
 
+/* TODO: Update function to ignore all file names that do not start with an
+ * alphabetic character.
+ */
 int is_file_name_to_ignore(char *file_name) {
     return !strcmp(file_name, ".") || !strcmp(file_name, "..");
 }
@@ -107,4 +115,29 @@ char * copy_string(char *src) {
     char *dest = malloc(str_size);
     strcpy(dest, src);
     return dest;
+}
+
+/* Prints all of the strings in the specified array that begin with the given 
+ * prefix.
+ */
+void print_strings_with_prefix(char **strings, int strings_size, char *prefix) {
+    int i;
+    for (i = 0; i < strings_size && strings[i]; i++) {
+        if (starts_with(strings[i], prefix)) {
+            printf("%s\n", strings[i]);
+        }
+    }
+}
+       
+/* Returns a 1 if the specified string begins with the given prefix and a 0 
+ * otherwise.
+ */
+int starts_with(char *str, char *prefix) {
+    int i;
+    for (i = 0; i < strlen(prefix); i++) {
+        if (str[i] != prefix[i]) {
+            return 0;
+        }
+    }
+    return 1;
 }
