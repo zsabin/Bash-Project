@@ -3,6 +3,7 @@
 #include <string.h>
 #include <dirent.h>
 #include <errno.h>
+#include <ctype.h>
 
 char * get_next_file_name(DIR *dir_p);
 int get_file_names(char *dir_name, char **buffer);
@@ -86,11 +87,8 @@ int get_file_names(char *dir_name, char **buffer) {
     return 0;
 }
 
-/* TODO: Update function to ignore all file names that do not start with an
- * alphabetic character.
- */
 int is_file_name_to_ignore(char *file_name) {
-    return !strcmp(file_name, ".") || !strcmp(file_name, "..");
+    return !isalpha(file_name[0]);
 }
 
 /* Returns a pointer to the string representing the name of the file pointed to 
@@ -135,7 +133,7 @@ void print_strings_with_prefix(char **strings, int strings_size, char *prefix) {
 int starts_with(char *str, char *prefix) {
     int i;
     for (i = 0; i < strlen(prefix); i++) {
-        if (str[i] != prefix[i]) {
+        if (tolower(str[i]) != tolower(prefix[i])) {
             return 0;
         }
     }
