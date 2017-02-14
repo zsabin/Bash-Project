@@ -1,14 +1,17 @@
+//call in all the necessary libraries
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
 #include <errno.h>
 #include <ctype.h>
+#include "List.h"
 
 char * get_next_file_name(DIR *dir_p);
-int get_file_names(char *dir_name, char **buffer);
+int get_file_names(char *dir_name, List **buffer);
 char * read_user_input(char *buffer, int buffer_size);
-void print_strings_with_prefix(char **strings, int strings_size, char *prefix);
+void print_strings_with_prefix(List **strings, int strings_size, char *prefix);
 int starts_with(char *str, char *prefix);
 char * copy_string(char *src);
 int is_file_name_to_ignore(char *file_name);
@@ -21,13 +24,14 @@ const int MAX_FILE_NAME_LENGTH = 256;
  * files in the directory that begin with the given prefix. The program exits 
  * when the user enters an empty string. 
  */
-int main() {   
+int main() {
+
     char dir_name[MAX_PATH_LENGTH];
     char file_prefix[MAX_FILE_NAME_LENGTH];
     
     /* TODO: Replace file_names with an array of linked lists or trie */
     const int file_names_size = 100;
-    char *file_names[file_names_size];
+    List *file_names[file_names_size];
     
     int i;
 
@@ -66,7 +70,7 @@ char * read_user_input(char *buffer, int buffer_size) {
  * TODO: convert buffer to an array of linked lists or a trie as specified in 
  * the assignment description.
  */
-int get_file_names(char *dir_name, char **buffer) {
+int get_file_names(char *dir_name, List **buffer) {
     DIR *dir_p;
     char *file_name;
     int i;
@@ -79,7 +83,7 @@ int get_file_names(char *dir_name, char **buffer) {
 
     for(i = 0; file_name = get_next_file_name(dir_p);) {
         if (!is_file_name_to_ignore(file_name)) {
-            buffer[i] = file_name;
+            pushToEnd(buffer[i], file_name);
             i++;
         }
     }
@@ -118,7 +122,7 @@ char * copy_string(char *src) {
 /* Prints all of the strings in the specified array that begin with the given 
  * prefix.
  */
-void print_strings_with_prefix(char **strings, int strings_size, char *prefix) {
+void print_strings_with_prefix(List **strings, int strings_size, char *prefix) {
     int i;
     for (i = 0; i < strings_size && strings[i]; i++) {
         if (starts_with(strings[i], prefix)) {
