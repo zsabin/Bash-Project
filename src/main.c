@@ -43,15 +43,15 @@ int main() {
         return EXIT_SUCCESS;
     }
     
-    printf("Enter the beginning of a filename:\n");
+    printf("Enter the beginning of a filename:");
     while (read_user_input(file_prefix, MAX_FILE_NAME_LENGTH)) {
         if (is_file_name_to_ignore(file_prefix)) {
-            printf("Invalid prefix. Must begin with alphabetic character.\n");
-            continue;
+            printf("\nInvalid prefix. Must begin with alphabetic character.\n");
+        } else {
+            printf("\nFiles starting with %s in %s\n", file_prefix, dir_name);
+            print_files_with_prefix(file_names, file_prefix);
         }
-        printf("\nFiles starting with %s in %s\n", file_prefix, dir_name);
-        print_files_with_prefix(file_names, file_prefix);
-        printf("Enter the beginning of a filename:\n");
+        printf("\nEnter the beginning of a filename:\n");
     }
     return EXIT_SUCCESS;
 }
@@ -125,6 +125,7 @@ int get_char_index(char *str) {
  * prefix.
  */
 void print_files_with_prefix(List **file_names, char *prefix) {
+    int result_list_is_empty = 0;
     List *list = file_names[get_char_index(prefix)];
     Node *node = list->head; 
     
@@ -135,8 +136,13 @@ void print_files_with_prefix(List **file_names, char *prefix) {
     
     //Print all file names that start with the prefix
     while (node && starts_with(node->value, prefix) ) {
+        result_list_is_empty = 1;
         printf("%s\n", node->value);
         node = node->next;
+    }
+    
+    if (result_list_is_empty == 0) {
+        printf("--- No files found ---\n");
     }
 }
        
