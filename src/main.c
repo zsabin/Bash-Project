@@ -45,6 +45,10 @@ int main() {
     
     printf("Enter the beginning of a filename:\n");
     while (read_user_input(file_prefix, MAX_FILE_NAME_LENGTH)) {
+        if (is_file_name_to_ignore(file_prefix)) {
+            printf("Invalid prefix. Must begin with alphabetic character.\n");
+            continue;
+        }
         printf("\nFiles starting with %s in %s\n", file_prefix, dir_name);
         print_files_with_prefix(file_names, file_prefix);
         printf("Enter the beginning of a filename:\n");
