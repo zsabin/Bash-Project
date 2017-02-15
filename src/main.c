@@ -11,13 +11,15 @@
 char * get_next_file_name(DIR *dir_p);
 int get_file_names(char *dir_name, List **buffer);
 char * read_user_input(char *buffer, int buffer_size);
-void print_strings_with_prefix(List **strings, int strings_size, char *prefix);
+void print_files_with_prefix(List **file_names, char *prefix);
 int starts_with(char *str, char *prefix);
+int get_char_index(char *str);
 char * copy_string(char *src);
 int is_file_name_to_ignore(char *file_name);
 
 const int MAX_PATH_LENGTH = 4096; 
 const int MAX_FILE_NAME_LENGTH = 256;
+const int ALPHA_CHAR_COUNT = 26;
  
 /* Reads the names of each of the files in a user-specified directory. Then 
  * reads file prefixes from the user and prints the list of names of the
@@ -25,20 +27,15 @@ const int MAX_FILE_NAME_LENGTH = 256;
  * when the user enters an empty string. 
  */
 int main() {
-
     char dir_name[MAX_PATH_LENGTH];
     char file_prefix[MAX_FILE_NAME_LENGTH];
-    
-    /* TODO: Replace file_names with an array of linked lists or trie */
-    const int file_names_size = 100;
-    List *file_names[file_names_size];
-    
+    List *file_names[ALPHA_CHAR_COUNT];
     int i;
-
+    
     printf("\nEnter a folder name: ");
     read_user_input(dir_name, MAX_PATH_LENGTH);
-    for (i = 0; i < file_names_size; i++) {
-        file_names[i] = NULL;
+    for (i = 0; i < ALPHA_CHAR_COUNT; i++) {
+        file_names[i] = create_list();
     }
         
     if (get_file_names(dir_name, file_names)){
@@ -49,7 +46,7 @@ int main() {
     printf("Enter the beginning of a filename:\n");
     while (read_user_input(file_prefix, MAX_FILE_NAME_LENGTH)) {
         printf("\nFiles starting with %s in %s\n", file_prefix, dir_name);
-        print_strings_with_prefix(file_names, file_names_size, file_prefix);
+        print_files_with_prefix(file_names, file_prefix);
         printf("Enter the beginning of a filename:\n");
     }
     return EXIT_SUCCESS;
@@ -66,9 +63,6 @@ char * read_user_input(char *buffer, int buffer_size) {
 /* Attempts to get the names of all of the files in the specified directory
  * and store them in the given buffer. Returns 0 if this function successfully 
  * accessed the directory or a positive integer representing the error.
- * 
- * TODO: convert buffer to an array of linked lists or a trie as specified in 
- * the assignment description.
  */
 int get_file_names(char *dir_name, List **buffer) {
     DIR *dir_p;
@@ -81,10 +75,10 @@ int get_file_names(char *dir_name, List **buffer) {
         return errno;
     }
 
-    for(i = 0; file_name = get_next_file_name(dir_p);) {
+    while(file_name = get_next_file_name(dir_p)) {
         if (!is_file_name_to_ignore(file_name)) {
-            pushToEnd(buffer[i], file_name);
-            i++;
+            int index = get_char_index(file_name);
+            addElement(buffer[index], file_name);
         }
     }
     closedir(dir_p);
@@ -119,15 +113,26 @@ char * copy_string(char *src) {
     return dest;
 }
 
+int get_char_index(char *str) {
+    return tolower(str[0]) - 'a';
+}
+
 /* Prints all of the strings in the specified array that begin with the given 
  * prefix.
  */
-void print_strings_with_prefix(List **strings, int strings_size, char *prefix) {
-    int i;
-    for (i = 0; i < strings_size && strings[i]; i++) {
-        if (starts_with(strings[i], prefix)) {
-            printf("%s\n", strings[i]);
-        }
+void print_files_with_prefix(List **file_names, char *prefix) {
+    List *list = file_names[get_char_index(prefix)];
+    Node *node = list->head; 
+    
+    //Move pointer past all file names less than the prefix 
+    while (node && strcasecmp(prefix, node->value) > 0) {
+        node = node->next;
+    }
+    
+    //Print all file names that start with the prefix
+    while (node && starts_with(node->value, prefix) ) {
+        printf("%s\n", node->value);
+        node = node->next;
     }
 }
        
