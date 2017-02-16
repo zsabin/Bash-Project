@@ -1,5 +1,9 @@
-//call in all the necessary libraries
-
+/**
+ * A set of fundamental functions to implement a linked list
+ * 
+ * @author Kyle Zeller
+ * @author Zach Sabin
+ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

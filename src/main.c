@@ -1,5 +1,11 @@
-//call in all the necessary libraries
-
+/**
+ * A program to emulate the auto-complete functionality of Bash shells. It will
+ * print a list of all files in a specified directory that begin with a user
+ * provided prefix.
+ * 
+ * @author Zach Sabin
+ * @author Kyle Zeller
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -71,7 +77,6 @@ char * read_user_input(char *buffer, int buffer_size) {
 int get_file_names(char *dir_name, List **buffer) {
     DIR *dir_p;
     char *file_name;
-    int i;
 
     errno = 0;
     dir_p = opendir(dir_name);
